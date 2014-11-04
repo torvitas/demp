@@ -1,8 +1,8 @@
 DOCKERNAMESPACE = torvitas
-NAMESPACE = docker0
-HTTPPORT = 800
-HTTPSPORT = 4430
-MARIADBPORT = 33060
+NAMESPACE = docker
+HTTPPORT = 80
+HTTPSPORT = 443
+MARIADBPORT = 3306
 
 SYSTEMDSERVICEFOLDER = /usr/local/lib/systemd/system/
 DOCKERHOSTVOLUMES = /opt/docker/volumes/
@@ -15,6 +15,7 @@ HTTPSPORTPLACEHOLDER = \#\#\#HTTPSPORT\#\#\#
 MARIADBPORTPLACEHOLDER = \#\#\#MARIADBPORT\#\#\#
 
 all: docker-nginx docker-mariadb docker-php-fpm
+pull-all: pull-nginx pull-php-fpm pull-mariadb
 install: install-nginx install-php-fpm install-mariadb
 run-all: run-nginx
 
@@ -27,7 +28,16 @@ docker-php-fpm:
 docker-mariadb:
 	docker build -t $(DOCKERPREFIX)mariadb mariadb
 
-install-nginx: install-docker-stoprm docker-nginx systemd-service-folder install-nginx-data install-www-data
+pull-nginx:
+	docker pull torvitas/nginx
+
+pull-php-fpm:
+	docker pull torvitas/php-fpm
+
+pull-mariadb:
+	docker pull torvitas/mariadb
+
+install-nginx: install-docker-stoprm systemd-service-folder install-nginx-data install-www-data
 	sudo cp nginx/docker-nginx.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
@@ -35,13 +45,13 @@ install-nginx: install-docker-stoprm docker-nginx systemd-service-folder install
 	sudo sed -i s/$(HTTPSPORTPLACEHOLDER)/$(HTTPSPORT)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo systemctl enable $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 
-install-php-fpm: install-docker-stoprm docker-php-fpm systemd-service-folder install-www-data
+install-php-fpm: install-docker-stoprm systemd-service-folder install-www-data
 	sudo cp php-fpm/docker-php-fpm.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
 	sudo systemctl enable $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
 
-install-mariadb: install-docker-stoprm docker-mariadb systemd-service-folder install-mariadb-data
+install-mariadb: install-docker-stoprm systemd-service-folder install-mariadb-data
 	sudo cp mariadb/docker-mariadb.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
