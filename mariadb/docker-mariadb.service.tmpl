@@ -1,0 +1,18 @@
+[Unit]
+Description=###NAMESPACE### mariadb Container
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/local/bin/docker-stoprm ###NAMESPACE###-mariadb
+ExecStartPre=/usr/bin/docker run    --name ###NAMESPACE###-mariadb \
+				    --volumes-from ###NAMESPACE###-mariadb-data \
+                                    -p ###MARIADBPORT###:3306 \
+                                    -d \
+                                    ###DOCKERNAMESPACE###/mariadb
+ExecStart=/usr/bin/docker attach ###NAMESPACE###-mariadb
+ExecStop=/usr/local/bin/docker-stoprm ###NAMESPACE###-mariadb
+
+[Install]
+WantedBy=multi-user.target

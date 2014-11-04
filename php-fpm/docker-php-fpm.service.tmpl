@@ -1,0 +1,20 @@
+[Unit]
+Description=PHP-FPM Container
+Requires=docker.service
+Requires=###NAMESPACE###-mariadb.service
+After=###NAMESPACE###-mariadb.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/local/bin/docker-stoprm ###NAMESPACE###-php-fpm
+ExecStartPre=/usr/bin/docker run    --name ###NAMESPACE###-php-fpm \
+				    --volumes-from ###NAMESPACE###-www-data \
+                                    -d \
+                                    --link ###NAMESPACE###-mariadb:db \
+                                    ###DOCKERNAMESPACE###/php-fpm
+ExecStart=/usr/bin/docker attach ###NAMESPACE###-php-fpm
+ExecStop=/usr/local/bin/docker-stoprm ###NAMESPACE###-php-fpm
+
+[Install]
+WantedBy=multi-user.target

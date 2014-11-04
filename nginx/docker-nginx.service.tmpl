@@ -1,0 +1,23 @@
+[Unit]
+Description=NGiNX Container
+Requires=docker.service
+Requires=###NAMESPACE###-php-fpm.service
+After=###NAMESPACE###-php-fpm.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/local/bin/docker-stoprm ###NAMESPACE###-nginx
+ExecStartPre=/usr/bin/docker run    --name ###NAMESPACE###-nginx \
+				    --volumes-from ###NAMESPACE###-www-data \
+				    --volumes-from ###NAMESPACE###-nginx-data \
+                                    --link ###NAMESPACE###-php-fpm:fpm \
+                                    -p ###HTTPPORT###:80 \
+                                    -p ###HTTPSPORT###:443 \
+                                    -d \
+                                    ###DOCKERNAMESPACE###/nginx
+ExecStart=/usr/bin/docker attach ###NAMESPACE###-nginx
+ExecStop=/usr/local/bin/docker-stoprm ###NAMESPACE###-nginx
+
+[Install]
+WantedBy=multi-user.target
