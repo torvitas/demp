@@ -24,4 +24,4 @@ Docker containers systemd is being used.
     - you do need systemd
 - dial unix /var/run/docker.sock: no such file or directory
     - docker needs to be installed and running
-        - # yum install docker-io; systemctl start docker 
+        - `# yum install docker-io; systemctl start docker`
