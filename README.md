@@ -1,5 +1,4 @@
-DEMP
-####
+# DEMP
 
 Docker + nginx + mariadb + php-fpm
 LEMP in docker containers.
