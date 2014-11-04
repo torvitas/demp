@@ -18,3 +18,10 @@ Docker containers systemd is being used.
 - to uninstall the containers, services and host volumes run `# make uninstall`
     - this only uninstalls containers that match the NAMESPACE variable
     - this does not delete the images
+
+## Troubleshooting
+- systemctl: command not found
+    - you do need systemd
+- dial unix /var/run/docker.sock: no such file or directory
+    - docker needs to be installed and running
+        - # yum install docker-io; systemctl start docker 
