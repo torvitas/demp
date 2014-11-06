@@ -29,28 +29,28 @@ install-nginx: install-docker-stoprm systemd-service-folder install-nginx-data i
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo sed -i s/$(HTTPPORTPLACEHOLDER)/$(HTTPPORT)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo sed -i s/$(HTTPSPORTPLACEHOLDER)/$(HTTPSPORT)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
-	sudo systemctl enable $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
+	sudo systemctl enable $(NAMESPACE)-nginx.service
 
 install-php-fpm: install-docker-stoprm systemd-service-folder install-www-data
 	sudo cp php-fpm/docker-php-fpm.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
-	sudo systemctl enable $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
+	sudo systemctl enable $(NAMESPACE)-php-fpm.service
 
 install-mariadb: install-docker-stoprm systemd-service-folder install-mariadb-data
 	sudo cp mariadb/docker-mariadb.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
 	sudo sed -i s/$(MARIADBPORTPLACEHOLDER)/$(MARIADBPORT)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
-	sudo systemctl enable $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
+	sudo systemctl enable $(NAMESPACE)-mariadb.service
 
-run-nginx: install-nginx run-php-fpm
+run-nginx: run-php-fpm
 	sudo systemctl start $(NAMESPACE)-nginx
 
-run-php-fpm: install-php-fpm run-mariadb
+run-php-fpm: run-mariadb
 	sudo systemctl start $(NAMESPACE)-php-fpm
 
-run-mariadb: install-mariadb
+run-mariadb:
 	sudo systemctl start $(NAMESPACE)-mariadb
 
 install-nginx-data:
@@ -59,8 +59,10 @@ install-nginx-data:
 
 install-mariadb-data:
 	sudo mkdir -p $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/
+	sudo chmod o+w $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/
 	docker run --name $(NAMESPACE)-mariadb-data -v $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/:/var/lib/mysql/ busybox
 	docker run --rm --volumes-from=$(NAMESPACE)-mariadb-data $(DOCKERPREFIX)mariadb /config_mariadb.sh
+	sudo chmod o-w $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/
 
 install-www-data:
 	sudo mkdir -p $(DOCKERHOSTVOLUMES)$(NAMESPACE)-www/

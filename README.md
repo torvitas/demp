@@ -4,7 +4,7 @@ Docker + nginx + mariadb + php-fpm
 LEMP in docker containers.
 
 ## Quickstart
-`# make pull-all; make run-all`
+`# make pull-all; make install; make run-all`
 This will pull a docker image for each of the services and
 create data only containers. To manage the lifecycle of the
 Docker containers systemd is being used.
