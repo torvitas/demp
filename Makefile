@@ -1,18 +1,4 @@
-DOCKERNAMESPACE = torvitas
-NAMESPACE = docker
-HTTPPORT = 80
-HTTPSPORT = 443
-MARIADBPORT = 3306
-
-SYSTEMDSERVICEFOLDER = /usr/local/lib/systemd/system/
-DOCKERHOSTVOLUMES = /opt/docker/volumes/
-
-DOCKERPREFIX = $(DOCKERNAMESPACE)/
-DOCKERNAMESPACEPLACEHOLDER = \#\#\#DOCKERNAMESPACE\#\#\#
-NAMESPACEPLACEHOLDER = \#\#\#NAMESPACE\#\#\#
-HTTPPORTPLACEHOLDER = \#\#\#HTTPPORT\#\#\#
-HTTPSPORTPLACEHOLDER = \#\#\#HTTPSPORT\#\#\#
-MARIADBPORTPLACEHOLDER = \#\#\#MARIADBPORT\#\#\#
+-include make.d/*
 
 all: docker-nginx docker-mariadb docker-php-fpm
 pull-all: pull-nginx pull-php-fpm pull-mariadb
