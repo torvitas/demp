@@ -5,13 +5,14 @@ Requires=###NAMESPACE###-mariadb.service
 After=###NAMESPACE###-mariadb.service
 
 [Service]
+EnvironmentFile=/etc/systemd/system/###NAMESPACE###-php-fpm.service.d/EnvironmentFile
 TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/local/bin/docker-stoprm ###NAMESPACE###-php-fpm
 ExecStartPre=/usr/bin/docker run    --name ###NAMESPACE###-php-fpm \
-				    --volumes-from ###NAMESPACE###-www-data \
+				    $VOLUMESFROM \
                                     -d \
-                                    --link ###NAMESPACE###-mariadb:db \
+                                    $LINKSTO \
                                     ###DOCKERNAMESPACE###/php-fpm
 ExecStart=/usr/bin/docker attach ###NAMESPACE###-php-fpm
 ExecStop=/usr/local/bin/docker-stoprm ###NAMESPACE###-php-fpm

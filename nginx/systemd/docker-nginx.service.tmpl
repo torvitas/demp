@@ -5,13 +5,13 @@ Requires=###NAMESPACE###-php-fpm.service
 After=###NAMESPACE###-php-fpm.service
 
 [Service]
+EnvironmentFile=/etc/systemd/system/###NAMESPACE###-nginx.service.d/EnvironmentFile
 TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/local/bin/docker-stoprm ###NAMESPACE###-nginx
 ExecStartPre=/usr/bin/docker run    --name ###NAMESPACE###-nginx \
-				    --volumes-from ###NAMESPACE###-www-data \
-				    --volumes-from ###NAMESPACE###-nginx-data \
-                                    --link ###NAMESPACE###-php-fpm:fpm \
+				    $VOLUMESFROM \
+				    $LINKSTO \
                                     -p ###HTTPPORT###:80 \
                                     -p ###HTTPSPORT###:443 \
                                     -d \

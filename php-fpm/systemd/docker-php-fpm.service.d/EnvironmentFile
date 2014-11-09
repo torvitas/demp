@@ -1,0 +1,2 @@
+FOLUMESFROM=--volumes-from ###NAMESPACE###-www-data
+LINKSTO=--link ###NAMESPACE###-mariadb:db

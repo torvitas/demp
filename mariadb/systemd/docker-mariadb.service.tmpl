@@ -3,11 +3,13 @@ Description=###NAMESPACE### mariadb Container
 Requires=docker.service
 
 [Service]
+EnvironmentFile=/etc/systemd/system/###NAMESPACE###-mariadb.service.d/EnvironmentFile
 TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/local/bin/docker-stoprm ###NAMESPACE###-mariadb
 ExecStartPre=/usr/bin/docker run    --name ###NAMESPACE###-mariadb \
-				    --volumes-from ###NAMESPACE###-mariadb-data \
+				    $VOLUMESFROM \
+				    $LINKSTO \
                                     -p ###MARIADBPORT###:3306 \
                                     -d \
                                     ###DOCKERNAMESPACE###/mariadb

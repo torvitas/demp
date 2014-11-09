@@ -24,23 +24,29 @@ pull-mariadb:
 	docker pull torvitas/mariadb
 
 install-nginx: install-docker-stoprm systemd-service-folder install-nginx-data install-www-data
-	sudo cp nginx/docker-nginx.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
+	sudo cp nginx/systemd/$(NAMESPACE)-nginx.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
+	sudo cp -r nginx/systemd/$(NAMESPACE)-nginx.service.d $(SYSTEMDSERVICEFOLDER)
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
+	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service.d/EnvironmentFile
 	sudo sed -i s/$(HTTPPORTPLACEHOLDER)/$(HTTPPORT)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo sed -i s/$(HTTPSPORTPLACEHOLDER)/$(HTTPSPORT)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-nginx.service
 	sudo systemctl enable $(NAMESPACE)-nginx.service
 
 install-php-fpm: install-docker-stoprm systemd-service-folder install-www-data
-	sudo cp php-fpm/docker-php-fpm.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
+	sudo cp php-fpm/systemd/docker-php-fpm.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
+	sudo cp -r php-fpm/systemd/docker-php-fpm.service.d $(SYSTEMDSERVICEFOLDER)
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service
+	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-php-fpm.service.d/EnvironmentFile
 	sudo systemctl enable $(NAMESPACE)-php-fpm.service
 
 install-mariadb: install-docker-stoprm systemd-service-folder install-mariadb-data
-	sudo cp mariadb/docker-mariadb.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
+	sudo cp mariadb/systemd/docker-mariadb.service.tmpl $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
+	sudo cp -r mariadb/systemd/docker-mariadb.service.d $(SYSTEMDSERVICEFOLDER)
 	sudo sed -i s/$(DOCKERNAMESPACEPLACEHOLDER)/$(DOCKERNAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
 	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
+	sudo sed -i s/$(NAMESPACEPLACEHOLDER)/$(NAMESPACE)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service.d/EnvironmentFile
 	sudo sed -i s/$(MARIADBPORTPLACEHOLDER)/$(MARIADBPORT)/g $(SYSTEMDSERVICEFOLDER)$(NAMESPACE)-mariadb.service
 	sudo systemctl enable $(NAMESPACE)-mariadb.service
 
@@ -89,4 +95,4 @@ uninstall:
 	-docker rm $(NAMESPACE)-www-data
 	-docker stop $(NAMESPACE)-mariadb-data
 	-docker rm $(NAMESPACE)-mariadb-data
-	-cd $(SYSTEMDSERVICEFOLDER); sudo rm $(NAMESPACE)-nginx.service $(NAMESPACE)-php-fpm.service $(NAMESPACE)-mariadb.service
+	-cd $(SYSTEMDSERVICEFOLDER); sudo rm -r $(NAMESPACE)-nginx.service* $(NAMESPACE)-php-fpm.service* $(NAMESPACE)-mariadb.service*
