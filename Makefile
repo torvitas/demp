@@ -1,9 +1,9 @@
 -include make.d/*
 
-all: docker-nginx docker-mariadb docker-php-fpm
-pull-all: pull-nginx pull-php-fpm pull-mariadb
+build: docker-nginx docker-mariadb docker-php-fpm
+pull: pull-nginx pull-php-fpm pull-mariadb
 install: install-nginx install-php-fpm install-mariadb
-run-all: run-nginx
+run: run-nginx
 
 docker-nginx:
 	docker build -t $(DOCKERPREFIX)nginx nginx
@@ -54,19 +54,14 @@ run-mariadb:
 	sudo systemctl start $(NAMESPACE)-mariadb
 
 install-nginx-data:
-	sudo mkdir -p $(DOCKERHOSTVOLUMES)$(NAMESPACE)-nginx/conf.d/
-	docker run --name $(NAMESPACE)-nginx-data -v $(DOCKERHOSTVOLUMES)$(NAMESPACE)-nginx/conf.d/:/etc/nginx/conf.d/ busybox
+	docker run --name $(NAMESPACE)-nginx-data -v /etc/nginx/conf.d/ busybox
 
 install-mariadb-data:
-	sudo mkdir -p $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/
-	sudo chmod o+w $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/
-	docker run --name $(NAMESPACE)-mariadb-data -v $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/:/var/lib/mysql/ busybox
+	docker run --name $(NAMESPACE)-mariadb-data -v /var/lib/mysql/ busybox
 	docker run --rm --volumes-from=$(NAMESPACE)-mariadb-data $(DOCKERPREFIX)mariadb /config_mariadb.sh
-	sudo chmod o-w $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb/data/
 
 install-www-data:
-	sudo mkdir -p $(DOCKERHOSTVOLUMES)$(NAMESPACE)-www/
-	docker run --name $(NAMESPACE)-www-data -v $(DOCKERHOSTVOLUMES)$(NAMESPACE)-www/:/srv/www/ busybox
+	docker run --name $(NAMESPACE)-www-data -v /srv/www/ busybox
 
 systemd-service-folder:
 	sudo mkdir -p $(SYSTEMDSERVICEFOLDER)
@@ -95,6 +90,3 @@ uninstall:
 	-docker stop $(NAMESPACE)-mariadb-data
 	-docker rm $(NAMESPACE)-mariadb-data
 	-cd $(SYSTEMDSERVICEFOLDER); sudo rm $(NAMESPACE)-nginx.service $(NAMESPACE)-php-fpm.service $(NAMESPACE)-mariadb.service
-	-sudo rm -rf $(DOCKERHOSTVOLUMES)$(NAMESPACE)-nginx
-	-sudo rm -rf $(DOCKERHOSTVOLUMES)$(NAMESPACE)-www
-	-sudo rm -rf $(DOCKERHOSTVOLUMES)$(NAMESPACE)-mariadb
