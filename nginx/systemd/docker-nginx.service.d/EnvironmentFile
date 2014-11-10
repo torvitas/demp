@@ -1,2 +1,2 @@
-VOLUMESFROM=--volumes-from ###NAMESPACE###-www-data --volumes-from ###NAMESPACE###-nginx-data
+VOLUMESFROM=--volumes-from=###NAMESPACE###-www-data --volumes-from=###NAMESPACE###-nginx-data
 LINKSTO=--link ###NAMESPACE###-php-fpm:fpm

@@ -1,2 +1,2 @@
-VOLUMESFROM=--volumes-from ###NAMESPACE###-mariadb-data
+VOLUMESFROM=--volumes-from=###NAMESPACE###-mariadb-data
 LINKSTO=
